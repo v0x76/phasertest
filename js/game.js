@@ -20,23 +20,54 @@ var game = new Phaser.Game(config);
 
 var player;
 var SHOT_DELAY, BULLET_SPEED, NUMBER_OF_BULLETS, bulletPool, lastBulletShotAt;
+var INPUT_X, INPUT_Y;
+var inputin, inputout;
+var inputon;
+
+SHOT_DELAY        = 200;
+BULLET_SPEED      = 200;
+NUMBER_OF_BULLETS = 20;
+
+INPUT_MAXDIST = 45;
+INPUT_X = 85;
+INPUT_Y = 515;
 
 function preload() {
     this.load.image('player', 'img/player.png');
     this.load.image('bullet', 'img/bullet.png');
+    this.load.image('input-outer', 'img/input-circleout.png');
+    this.load.image('input-inner', 'img/input-circlein.png');
 }
 
 function create() {
     player = this.physics.add.sprite(50, 50, 'player');
 
+    inputout = this.add.image( INPUT_X, INPUT_Y, 'input-outer' );
+    inputin  = this.add.image( INPUT_X, INPUT_Y, 'input-inner' );
+
+    inputout.fixedToCamera = true;
+    inputin.fixedToCamera = true;
+    inputout.setInteractive();
+
+    this.input.addPointer(1);
+
+    this.input.on('gameobjectdown', function(pointer) {
+        inputon = pointer;
+    });
+
+    this.input.on('pointerup', function(pointer) {
+        if(pointer == inputon) {
+            inputon = null;
+
+            inputin.x = inputout.x;
+            inputin.y = inputout.y;
+        }
+    });
+
     this.key_W = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
     this.key_A = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A);
     this.key_S = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S);
     this.key_D = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
-
-    SHOT_DELAY = 200;
-    BULLET_SPEED = 200;
-    NUMBER_OF_BULLETS = 20;
 
     bulletPool = this.physics.add.group();
     for(var i=0; i<NUMBER_OF_BULLETS; i++) {
@@ -59,24 +90,70 @@ function update() {
     if(this.key_D.isDown)
         hspeed += 2;
 
-    var swipe = hasSwiped(this.time);
-    if( swipe.up ) {
-        vspeed -= 8;
-    } else if( swipe.down ) {
-        vspeed += 8; 
-    }
-    if( swipe.left ) {
-        hspeed -= 8;
-    } else if( swipe.right ) {
-        hspeed += 8;
+    if(inputon) {
+        var uiinput = setDirection();
     }
 
-    player.x += hspeed;
-    player.y += vspeed;
+    if(game.input.activePointer.isDown && inputon!=game.input.activePointer) {
+        var swipe = hasSwiped(this.time);
+        if( swipe.up ) {
+            vspeed -= 8;
+        } else if( swipe.down ) {
+            vspeed += 8; 
+        }
+        if( swipe.left ) {
+            hspeed -= 8;
+        } else if( swipe.right ) {
+            hspeed += 8;
+        }
 
-    player.rotation = Phaser.Math.Angle.BetweenPoints(player.body.position, game.input.activePointer.position); 
-    if(game.input.activePointer.isDown)
+        player.x += hspeed;
+        player.y += vspeed;
+
+        player.rotation = Phaser.Math.Angle.BetweenPoints(player.body.position, game.input.activePointer.position); 
         shootBullet(this.time);
+    }
+}
+
+function setDirection() {
+    var vspeed = 0;
+    var hspeed = 0;
+
+    var d = distance({x:INPUT_X, y:INPUT_Y}, inputon);
+    var dx = inputon.x - INPUT_X;
+    var dy = inputon.y - INPUT_Y;
+
+    var angle = Phaser.Math.Angle.BetweenPoints({x:INPUT_X, y:INPUT_Y}, inputon.position);
+
+    if(d > INPUT_MAXDIST) {
+        dx = (dx===0) ? 0 : Math.cos(angle) * INPUT_MAXDIST;
+        dy = (dy===0) ? 0 : Math.sin(angle) * INPUT_MAXDIST;
+    }
+
+    // update UI position
+    inputin.x = INPUT_X+dx;
+    inputin.y = INPUT_Y+dy;
+
+    if(dx>-25 && dx<25 && dy<25 && dy>-25) {
+        return false;
+    } else {
+
+        if(dy <= -20) {
+            vspeed -= 2;
+        } else if(dy >= 20) {
+            vspeed += 2;
+        }
+        if(dx <= -20) {
+            hspeed -= 2;
+        } else if(dx >= 20) {
+            hspeed += 2;
+        }
+
+        player.x += hspeed;
+        player.y += vspeed;
+
+        return true;
+    }
 }
 
 function hasSwiped(timer) {
