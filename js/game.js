@@ -1,5 +1,7 @@
 var config = {
     type: Phaser.AUTO,
+    width: 768,
+    height: 1024,
     backgroundColor: '#2d2d2d',
     physics: {
         default: 'arcade',
@@ -14,7 +16,13 @@ var config = {
     }
 };
 
-var game = new Phaser.Game(config);
+var game;
+
+window.onload = function() {
+    game = new Phaser.Game(config);
+    resize();
+    window.addEventListener("resize", resize, false);
+}
 
 var player;
 var SHOT_DELAY, BULLET_SPEED, NUMBER_OF_BULLETS, bulletPool, lastBulletShotAt;
@@ -29,6 +37,22 @@ NUMBER_OF_BULLETS = 20;
 INPUT_MAXDIST = 45;
 INPUT_X = 85;
 INPUT_Y = 515;
+
+function resize() {
+    var canvas = document.querySelector("canvas");
+    var winwidth = window.innerWidth;
+    var winheight = window.innerHeight;
+    var winratio = winwidth / winheight;
+    var gameratio = game.config.width / game.config.height;
+
+    if(winratio < gameratio) {
+        canvas.style.width = winwidth+"px";
+        canvas.style.height = (winwidth/gameratio)+"px";
+    } else {
+        canvas.style.width = (winheight*gameratio)+"px";
+        canvas.style.height = winheight+"px";
+    }
+}
 
 function preload() {
     this.load.image('player', 'img/player.png');
