@@ -3,7 +3,20 @@
 <head>
     <meta charset="utf-8" />
     <title>Game Prototype</title>
-    <style>* { padding: 0; margin: 0; }</style>
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+        }
+
+        canvas {
+            display: block;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+    </style>
     <script src="js/phaser.min.js"></script>
 </head>
 <body>
