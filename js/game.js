@@ -1,7 +1,5 @@
 var config = {
     type: Phaser.AUTO,
-    width: 800,
-    height: 600,
     backgroundColor: '#2d2d2d',
     physics: {
         default: 'arcade',
@@ -107,12 +105,13 @@ function update() {
             hspeed += 8;
         }
 
-        player.x += hspeed;
-        player.y += vspeed;
-
         player.rotation = Phaser.Math.Angle.BetweenPoints(player.body.position, game.input.activePointer.position); 
         shootBullet(this.time);
     }
+
+    player.x += hspeed;
+    player.y += vspeed;
+
 }
 
 function setDirection() {
