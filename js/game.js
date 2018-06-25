@@ -35,8 +35,8 @@ BULLET_SPEED      = 200;
 NUMBER_OF_BULLETS = 20;
 
 INPUT_MAXDIST = 45;
-INPUT_X = 85;
-INPUT_Y = 515;
+INPUT_X = 100;
+INPUT_Y = 925;
 
 function resize() {
     var canvas = document.querySelector("canvas");
@@ -66,11 +66,13 @@ function create() {
     player.body.setOffset(8, 8);
     player.setScale(6);
 
+    this.cameras.main.startFollow(player);
+
     inputout = this.add.image( INPUT_X, INPUT_Y, 'input-outer' );
     inputin  = this.add.image( INPUT_X, INPUT_Y, 'input-inner' );
 
-    inputout.fixedToCamera = true;
-    inputin.fixedToCamera = true;
+    inputout.setScrollFactor(0);
+    inputin.setScrollFactor(0);
     inputout.setInteractive();
 
     this.input.addPointer(1);
@@ -132,7 +134,7 @@ function update() {
             hspeed += 8;
         }
 
-        player.body.rotation = Phaser.Math.Angle.BetweenPoints(player.body.position, game.input.activePointer.position); 
+        player.body.rotation = Phaser.Math.Angle.BetweenPoints(player.body.position, {x:game.input.activePointer.worldX, y:game.input.activePointer.worldY}); 
         player.rotation = player.body.rotation;
         shootBullet(this.time);
     }
