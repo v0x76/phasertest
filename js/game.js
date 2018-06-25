@@ -2,7 +2,7 @@ var config = {
     type: Phaser.AUTO,
     width: 768,
     height: 1024,
-    backgroundColor: '#2d2d2d',
+    backgroundColor: '#444',
     physics: {
         default: 'arcade',
         arcade: {
@@ -63,6 +63,8 @@ function preload() {
 
 function create() {
     player = this.physics.add.sprite(50, 50, 'player');
+    player.body.setOffset(8, 8);
+    player.setScale(6);
 
     inputout = this.add.image( INPUT_X, INPUT_Y, 'input-outer' );
     inputin  = this.add.image( INPUT_X, INPUT_Y, 'input-inner' );
@@ -94,6 +96,7 @@ function create() {
     bulletPool = this.physics.add.group();
     for(var i=0; i<NUMBER_OF_BULLETS; i++) {
         var bullet = this.physics.add.sprite(0, 0, 'bullet');
+        bullet.setScale(3);
         bulletPool.add(bullet);
         bullet.disableBody(true, true);
     }
@@ -129,7 +132,8 @@ function update() {
             hspeed += 8;
         }
 
-        player.rotation = Phaser.Math.Angle.BetweenPoints(player.body.position, game.input.activePointer.position); 
+        player.body.rotation = Phaser.Math.Angle.BetweenPoints(player.body.position, game.input.activePointer.position); 
+        player.rotation = player.body.rotation;
         shootBullet(this.time);
     }
 
@@ -210,7 +214,7 @@ function shootBullet(timer) {
 
     bullet.enableBody(true, player.x, player.y, true, true)
 
-    bullet.rotation = player.rotation;
+    bullet.rotation = player.body.rotation;
     bullet.body.velocity.x = Math.cos(bullet.rotation) * BULLET_SPEED;
     bullet.body.velocity.y = Math.sin(bullet.rotation) * BULLET_SPEED;
 
