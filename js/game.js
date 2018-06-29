@@ -76,14 +76,13 @@ function create() {
 
     this.cameras.main.startFollow(player)
 
-    if(!this.input.mousePointer.active) {
     inputout = this.add.image( INPUT_X, INPUT_Y, 'input-outer' )
     inputin  = this.add.image( INPUT_X, INPUT_Y, 'input-inner' )
 
     inputout.setScrollFactor(0)
     inputin.setScrollFactor(0)
     inputout.setInteractive()
-    
+
     this.input.addPointer(1)
 
     this.input.on('gameobjectdown', function(pointer) {
@@ -98,7 +97,6 @@ function create() {
             inputin.y = inputout.y
         }
     })
-    }
 
     this.key_W = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W)
     this.key_A = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A)
