@@ -18,7 +18,6 @@ var config = {
 }
 
 var game
-
 window.onload = function() {
     game = new Phaser.Game(config)
     resize()
@@ -151,7 +150,7 @@ function update() {
             hspeed += 150
         }
 
-        player.body.rotation = Phaser.Math.Angle.BetweenPoints(player.body.position, {x:game.input.activePointer.worldX, y:game.input.activePointer.worldY}) 
+        player.body.rotation = Phaser.Math.Angle.BetweenPoints(player.body.position, {x:game.input.activePointer.worldX-24, y:game.input.activePointer.worldY-24}) 
         player.rotation = player.body.rotation
         shootBullet(this.time)
     }
