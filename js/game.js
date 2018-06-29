@@ -47,7 +47,7 @@ function resize() {
       , gameratio = game.config.width / game.config.height
 
     if(winratio < gameratio) {
-this        canvas.style.width = winwidth+"px"
+        canvas.style.width = winwidth+"px"
         canvas.style.height = (winwidth/gameratio)+"px"
     } else {
         canvas.style.width = (winheight*gameratio)+"px"
