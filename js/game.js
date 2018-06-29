@@ -57,6 +57,7 @@ function resize() {
 
 function preload() {
     this.load.image('bg', 'img/bg.png')
+    this.load.image('wall', 'img/wall.png')
     this.load.image('player', 'img/player.png')
     this.load.image('bullet', 'img/bullet.png')
     this.load.image('input-outer', 'img/input-circleout.png')
@@ -64,10 +65,13 @@ function preload() {
 }
 
 function create() {
-    this.add.image(0, 0, 'bg');
+    this.add.image(0, 250, 'bg')
 
-    player = this.physics.add.sprite(50, 50, 'player')
-    player.body.setOffset(8, 8)
+    var walls = this.physics.add.staticGroup()
+    walls.create(0, 0, 'wall').setScale(6).refreshBody()
+
+    player = this.physics.add.sprite(0, 250, 'player')
+    player.body.setCircle(4, 4, 4)
     player.setScale(6)
 
     this.cameras.main.startFollow(player)
@@ -106,36 +110,45 @@ function create() {
         bulletPool.add(bullet)
         bullet.disableBody(true, true)
     }
+
+    this.physics.add.collider(player, walls)
+    this.physics.add.collider(bulletPool, walls, (bullet)=>{ bullet.body.setVelocity(0,0) })
 }
 
 function update() {
-    var hspeed = 0
+    var hspeed = 0 
     var vspeed = 0
+    var uiinput = 0
 
-    if(this.key_W.isDown)
-        vspeed -= 2
-    if(this.key_A.isDown)
-        hspeed -= 2
-    if(this.key_S.isDown)
-        vspeed += 2
-    if(this.key_D.isDown)
-        hspeed += 2
+    if(player.body.velocity.x > 1 || player.body.velocity.x < 1)
+        hspeed = player.body.velocity.x / 2
+    if(player.body.velocity.y > 1 || player.body.velocity.y < 1)
+        vspeed = player.body.velocity.y / 2
 
     if(inputon) {
-        var uiinput = setDirection()
+        uiinput = setDirection()
     }
+
+    if(this.key_W.isDown || uiinput.up)
+        vspeed -= 50
+    if(this.key_A.isDown || uiinput.left)
+        hspeed -= 50
+    if(this.key_S.isDown || uiinput.down)
+        vspeed += 50
+    if(this.key_D.isDown || uiinput.right)
+        hspeed += 50
 
     if(game.input.activePointer.isDown && inputon!=game.input.activePointer) {
         var swipe = hasSwiped(this.time)
         if( swipe.up ) {
-            vspeed -= 8
+            vspeed -= 150
         } else if( swipe.down ) {
-            vspeed += 8 
+            vspeed += 150
         }
         if( swipe.left ) {
-            hspeed -= 8
+            hspeed -= 150
         } else if( swipe.right ) {
-            hspeed += 8
+            hspeed += 150
         }
 
         player.body.rotation = Phaser.Math.Angle.BetweenPoints(player.body.position, {x:game.input.activePointer.worldX, y:game.input.activePointer.worldY}) 
@@ -143,8 +156,8 @@ function update() {
         shootBullet(this.time)
     }
 
-    player.x += hspeed
-    player.y += vspeed
+    player.body.setVelocityX(hspeed)
+    player.body.setVelocityY(vspeed)
 
 }
 
@@ -167,25 +180,11 @@ function setDirection() {
     inputin.x = INPUT_X+dx
     inputin.y = INPUT_Y+dy
 
-    if(dx>-25 && dx<25 && dy<25 && dy>-25) {
-        return false
-    } else {
-
-        if(dy <= -20) {
-            vspeed -= 2
-        } else if(dy >= 20) {
-            vspeed += 2
-        }
-        if(dx <= -20) {
-            hspeed -= 2
-        } else if(dx >= 20) {
-            hspeed += 2
-        }
-
-        player.x += hspeed
-        player.y += vspeed
-
-        return true
+    return {
+        up: (dy < -20),
+        down: (dy > 20),
+        left: (dx < -20),
+        right: (dx > 20)
     }
 }
 
