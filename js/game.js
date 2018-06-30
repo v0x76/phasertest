@@ -30,9 +30,9 @@ var player
   , inputin, inputout
   , inputon
 
-SHOT_DELAY        = 200
-BULLET_SPEED      = 200
-NUMBER_OF_BULLETS = 20
+SHOT_DELAY        = 500
+BULLET_SPEED      = 500
+NUMBER_OF_BULLETS = 10
 
 INPUT_MAXDIST = 45
 INPUT_X = 100
@@ -70,7 +70,7 @@ function create() {
     walls.create(0, 0, 'wall').setScale(6).refreshBody()
 
     player = this.physics.add.sprite(0, 250, 'player')
-    player.body.setCircle(4, 4, 4)
+    player.body.setCircle(2, 6, 6)
     player.setScale(6)
 
     this.cameras.main.startFollow(player)
@@ -105,6 +105,7 @@ function create() {
     bulletPool = this.physics.add.group()
     for(var i=0; i<NUMBER_OF_BULLETS; i++) {
         var bullet = this.physics.add.sprite(0, 0, 'bullet')
+        bullet.body.setSize(4, 4)
         bullet.setScale(3)
         bulletPool.add(bullet)
         bullet.disableBody(true, true)
@@ -219,10 +220,11 @@ function shootBullet(timer) {
     bullet.enableBody(true, player.x, player.y, true, true)
 
     bullet.rotation = player.body.rotation
+    bullet.body.rotation = bullet.rotation
     bullet.body.velocity.x = Math.cos(bullet.rotation) * BULLET_SPEED
     bullet.body.velocity.y = Math.sin(bullet.rotation) * BULLET_SPEED
 
-    timer.delayedCall(2000, ()=>{bullet.disableBody(true, true)}, [], this)
+    timer.delayedCall(1000, ()=>{bullet.disableBody(true, true)}, [], this)
 }
 
 function distance(posa, posb) {
