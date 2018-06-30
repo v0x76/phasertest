@@ -57,6 +57,7 @@ function resize() {
 function preload() {
     this.load.image('bg', 'img/bg.png')
     this.load.image('wall', 'img/wall.png')
+    this.load.spritesheet('crate', 'img/box.png', {frameWidth: 8})
     this.load.image('player', 'img/player.png')
     this.load.image('bullet', 'img/bullet.png')
     this.load.image('input-outer', 'img/input-circleout.png')
@@ -68,6 +69,13 @@ function create() {
 
     var walls = this.physics.add.staticGroup()
     walls.create(0, 0, 'wall').setScale(6).refreshBody()
+
+    var crates = this.physics.add.staticGroup()
+    for(var i=0; i<12; i++) {
+        var spawnarea = Phaser.Geom.Triangle.BuildEquilateral(240, 100, 600)
+        var pos = spawnarea.getRandomPoint()
+        crates.create(pos.x, pos.y, 'crate').setScale(6).refreshBody()
+    }
 
     player = this.physics.add.sprite(0, 250, 'player')
     player.body.setCircle(2, 6, 6)
@@ -111,8 +119,13 @@ function create() {
         bullet.disableBody(true, true)
     }
 
-    this.physics.add.collider(player, walls)
+    this.physics.add.collider(player, [walls, crates])
     this.physics.add.collider(bulletPool, walls, (bullet)=>{ bullet.body.setVelocity(0,0) })
+    this.physics.add.collider(bulletPool, crates, (bullet, crate)=>{ 
+        bullet.setVelocity(0, 0)
+        crate.disableBody(true, false)
+        crate.setFrame(1)
+    })
 }
 
 function update() {
@@ -224,7 +237,7 @@ function shootBullet(timer) {
     bullet.body.velocity.x = Math.cos(bullet.rotation) * BULLET_SPEED
     bullet.body.velocity.y = Math.sin(bullet.rotation) * BULLET_SPEED
 
-    timer.delayedCall(1000, ()=>{bullet.disableBody(true, true)}, [], this)
+    timer.delayedCall(500, ()=>{bullet.disableBody(true, true)}, [], this)
 }
 
 function distance(posa, posb) {
